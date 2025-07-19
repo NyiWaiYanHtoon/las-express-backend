@@ -1,0 +1,80 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  joinedAt  DateTime @default(now())
+  role      UserRole     @default(user)
+  actions   Action[]
+}
+
+
+model Category {
+  id     String   @id @default(auto()) @map("_id") @db.ObjectId
+  name   String   @unique
+  videos Video[]
+}
+
+model Video {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  description   String
+  tags          String[]
+  categoryId    String   @db.ObjectId
+  category      Category @relation(fields: [categoryId], references: [id])
+  videoUrl      String
+  thumbnailUrl  String
+  createdAt     DateTime @default(now())
+  duration      Float      @default(0)
+
+  likes         Like?
+  dislikes      Dislike?
+  actions       Action[]
+}
+
+model Action {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  actionType ActionType  @default(visit)
+  videoId    String   @db.ObjectId
+  userId     String   @db.ObjectId
+  createdAt     DateTime @default(now())  
+  video      Video    @relation(fields: [videoId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+}
+
+model Like {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  users    String[] @db.ObjectId
+  count    Int      @default(0)
+  videoId  String   @unique @db.ObjectId
+  video    Video    @relation(fields: [videoId], references: [id])
+}
+
+model Dislike {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  users    String[] @db.ObjectId
+  count    Int      @default(0)
+  videoId  String   @unique @db.ObjectId
+  video    Video    @relation(fields: [videoId], references: [id])
+}
+
+enum UserRole {
+  user
+  admin
+}
+
+enum ActionType {
+  visit
+  view
+  complete
+}
+
