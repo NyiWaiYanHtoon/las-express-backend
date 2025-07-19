@@ -28,14 +28,16 @@ app.use(
     credentials: true,
   })
 )
+app.set('trust proxy', 1);
 app.use(
   session({
     secret: process.env.GOOGLE_CLIENT_SECRET!,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false,
+      secure: true,
       httpOnly: true,
+      sameSite: 'none',
     },
   })
 )

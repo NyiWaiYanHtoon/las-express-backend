@@ -19,6 +19,7 @@ passport.use(new GoogleStrategy({
   callbackURL: `${process.env.EXPRESS_SERVER_URL}/api/auth/google/callback`,
 },
 async (accessToken, refreshToken, profile, done) => {
+  console.log("logging in");
   const email = profile.emails?.[0]?.value;
   if(!email) return done(new Error('No email found in Google profile'));
   const user= await insertUser(email);
@@ -53,12 +54,12 @@ router.get('/me', (req: Request, res: Response) => {
 });
 
 router.get('/signout', (req, res) => {
+  console.log("signing out");
   req.logout((err) => {
     if (err) {
       console.error('Logout error:', err);
       return res.status(500).send("Signout failed");
     }
-
      // clear cookie
     res.clearCookie('connect.sid');
     res.status(200).json({ message: 'Signed out successfully' });
