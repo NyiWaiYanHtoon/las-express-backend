@@ -46,12 +46,6 @@ router.get('/google/callback',
 );
 
 router.get('/me', (req: Request, res: Response) => {
-  console.log("Checking authentication status...");
-
-  console.log("Session ID:", req.sessionID);
-  console.log("Session:", req.session);
-  console.log("User:", req.user);
-
   if (req.isAuthenticated()) {
     console.log("User is authenticated");
     res.status(200).json({ user: req.user });
@@ -59,6 +53,7 @@ router.get('/me', (req: Request, res: Response) => {
     console.log("User is NOT authenticated");
     res.status(401).send("Not Authenticated");
   }
+
 });
 
 router.get('/signout', (req, res) => {
