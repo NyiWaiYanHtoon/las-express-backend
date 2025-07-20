@@ -46,9 +46,17 @@ router.get('/google/callback',
 );
 
 router.get('/me', (req: Request, res: Response) => {
+  console.log("Checking authentication status...");
+
+  console.log("Session ID:", req.sessionID);
+  console.log("Session:", req.session);
+  console.log("User:", req.user);
+
   if (req.isAuthenticated()) {
+    console.log("User is authenticated");
     res.status(200).json({ user: req.user });
   } else {
+    console.log("User is NOT authenticated");
     res.status(401).send("Not Authenticated");
   }
 });
@@ -60,7 +68,6 @@ router.get('/signout', (req, res) => {
       console.error('Logout error:', err);
       return res.status(500).send("Signout failed");
     }
-     // clear cookie
     res.clearCookie('connect.sid');
     res.status(200).json({ message: 'Signed out successfully' });
   });
