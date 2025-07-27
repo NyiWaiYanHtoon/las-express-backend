@@ -31,6 +31,7 @@ app.use(
 
 app.set('trust proxy', 1)
 
+// for production
 app.use(session({
   name: 'sid',
   secret: process.env.SESSION_SECRET!,
@@ -43,6 +44,18 @@ app.use(session({
     maxAge: 1000 * 60 * 60 * 24,
   },
 }));
+
+//for dev
+// app.use(session({
+//   secret: process.env.SESSION_SECRET!,
+//   resave: false,
+//   saveUninitialized: false,
+//   cookie: {
+//     secure: false, // must be false on localhost (no https)
+//     httpOnly: true,
+//     maxAge: 24 * 60 * 60 * 1000, // 1 day
+//   },
+// }));
 
 app.use(express.json());
 app.use(passport.initialize());

@@ -21,10 +21,18 @@ passport.use(new GoogleStrategy({
 async (accessToken, refreshToken, profile, done) => {
   console.log("logging in");
   const email = profile.emails?.[0]?.value;
+  const username = profile.displayName;
+  const photoUrl = profile.photos?.[0]?.value;
   if(!email) return done(new Error('No email found in Google profile'));
-  const user= await insertUser(email);
-  if(!user) return done(new Error('Error logging in'));
-  return done(null, user);
+  const dbUser= await insertUser(email);
+  if(!dbUser) return done(new Error('Error logging in'));
+  const userstore= {
+    dbUser,
+    username,
+    photoUrl
+  }
+
+  return done(null, userstore);
 }));
 
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
@@ -32,9 +40,9 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
 router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/login-failed' }),
   (req: Request, res: Response) => {
-    const user = req.user as User
+    const user = req.user as any
     
-    const role = user?.role || 'user';
+    const role = user?.dbUser?.role || 'user';
 
     const redirectURL =
       role === 'admin'
@@ -53,7 +61,6 @@ router.get('/me', (req: Request, res: Response) => {
     console.log("User is NOT authenticated");
     res.status(401).send("Not Authenticated");
   }
-
 });
 
 router.get('/signout', (req, res) => {
