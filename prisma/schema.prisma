@@ -15,6 +15,7 @@ model User {
   joinedAt  DateTime @default(now())
   role      UserRole     @default(user)
   actions   Action[]
+  videos    Video[]
 }
 
 
@@ -34,11 +35,15 @@ model Video {
   videoUrl      String
   thumbnailUrl  String
   createdAt     DateTime @default(now())
-  duration      Float      @default(0)
+  duration      Float     @default(0)
+  createdBy     String    @db.ObjectId
 
   likes         Like?
   dislikes      Dislike?
+
   actions       Action[]
+  
+  uploader      User     @relation(fields: [createdBy], references: [id])
 }
 
 model Action {

@@ -7,7 +7,6 @@ const TOPICS: { [key: string]: ActionType } = {
   "video-complete": "complete",
 };
 
-const prisma = new PrismaClient();
 
 async function runConsumer() {
   await consumer.connect();
@@ -30,7 +29,6 @@ async function runConsumer() {
 
         const action = await insertAction(actionType, videoId, userId)
         if(!action) console.log("Error inserting action:");
-
         console.log(`Created action '${actionType}' for video ${videoId} by user ${userId}`);
       } catch (err) {
         console.log("Error processing message:", err);

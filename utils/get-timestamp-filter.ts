@@ -1,4 +1,7 @@
-export function getTimestampFilter(timestamp: string): {gte: Date} | undefined {
+export function getTimestampFilter(timestamp: string): { gte: Date } | undefined {
+  
+  console.log(timestamp);
+   
   const now = new Date();
 
   if (timestamp === "today") {

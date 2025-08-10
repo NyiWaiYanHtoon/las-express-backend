@@ -16,11 +16,11 @@ router.get('/', async (req, res) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const pageSize = 12;
-    const search= req.query.search as string || "";
-    const id= req.query.id as string || undefined;
+    const search = req.query.search as string || "";
+    const id = req.query.id as string || undefined;
 
-    const data= await selectVideoWithCount((page-1)*pageSize, pageSize, search, id)
-    if(!data) res.status(500).send("Something went wrong!");
+    const data = await selectVideoWithCount((page - 1) * pageSize, pageSize, search, id)
+    if (!data) res.status(500).send("Something went wrong!");
     return res.json(data);
   } catch (err) {
     console.log('Failed to fetch videos:', err);
@@ -28,7 +28,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post( "/",
+router.post("/",
   upload.fields([
     { name: "video", maxCount: 1 },
     { name: "thumbnail", maxCount: 1 },
@@ -36,6 +36,21 @@ router.post( "/",
   async (req: Request, res: Response) => {
 
     try {
+
+      //check the userrole
+      const user = req.user as {
+        dbUser: {
+          id: string;
+          email: string;
+          joinedAt: Date;
+          role: 'user' | "admin";
+        },
+        username: string,
+        photoUrl: string
+      };
+      if (!user || user.dbUser.role != "admin") {
+        return res.status(405).send("Only Admin can upload")
+      }
       //check if the files are uploaded properly or not
       if (!isFilesFieldsObject(req.files)) {
         return res
@@ -67,7 +82,8 @@ router.post( "/",
         req.body.tags ? req.body.tags.split(",") : [],
         req.body.category,
         thumbnailUploadResult,
-        parseFloat(req.body.duration)
+        parseFloat(req.body.duration),
+        user.dbUser.id
       );
 
       if (!insertResult) {
@@ -88,13 +104,13 @@ router.post( "/",
 router.get('/stats', async (req: Request, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 1
-    const pageSize= 5
+    const pageSize = 5
     const timestamp = (req.query.timestamp as string) || 'all'
 
     //call util function with offset and timestamp string
-    const result = await getVideoStatsFromDB((page - 1) * pageSize, timestamp)
+    const result = await getVideoStatsFromDB((page - 1) * pageSize, pageSize, timestamp)
 
-    if(!result) return res.status(500).send("Something went wrong!")
+    if (!result) return res.status(500).send("Something went wrong!")
     res.status(200).json(result)
 
   } catch (err) {
@@ -106,8 +122,8 @@ router.get('/stats', async (req: Request, res: Response) => {
 router.get('/most-viewed', async (_req: Request, res: Response) => {
   try {
     const result = await getTopViewedFromDB("desc")
-    if(!result) res.status(500).send("Something went wrong!")
-    res.status(200).json( { videos: result } );
+    if (!result) res.status(500).send("Something went wrong!")
+    res.status(200).json({ videos: result });
   } catch (err) {
     console.log('Error fetching most viewed videos:', err)
     res.status(500).send("Something went wrong!")
@@ -117,8 +133,8 @@ router.get('/most-viewed', async (_req: Request, res: Response) => {
 router.get('/least-viewed', async (_req: Request, res: Response) => {
   try {
     const result = await getTopViewedFromDB("asc")
-    if(!result) res.status(500).send("Something went wrong!")
-    res.status(200).json( { videos: result } );
+    if (!result) res.status(500).send("Something went wrong!")
+    res.status(200).json({ videos: result });
   } catch (err) {
     console.log('Error fetching least viewed videos:', err)
     res.status(500).send("Something went wrong!")

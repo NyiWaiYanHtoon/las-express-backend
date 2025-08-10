@@ -14,12 +14,20 @@ export const insertDislike = async (videoId: string, userId: string): Promise< D
           where: { videoId },
           data: {
             users: { push: userId },
-            count: { increment: 1 },
+            count: { set: existingDislike.users.length+1 },
           },
         });
         return updatedDislike;
       } else {
-        return existingDislike;
+        const newDislikeUsers= existingDislike.users.filter(id => id !== userId);
+        const removedDislike= await prisma.dislike.update({
+          where: { videoId },
+          data: {
+            users: { set: newDislikeUsers },
+            count: { set: newDislikeUsers.length },
+          }
+        })
+        return removedDislike;
       }
     } else {
       const newDislike = await prisma.dislike.create({

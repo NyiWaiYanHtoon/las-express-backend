@@ -14,7 +14,7 @@ export const streamUpload = (reqFile: any): Promise<string | null> => {
       { resource_type: 'video', folder: 'las_videos' },
       (error, result) => {
         if (error || !result) {
-          console.error("Cloudinary upload error:", error);
+          console.log("Cloudinary upload error:", error);
           resolve(null);
         } else {
           resolve(result.secure_url);

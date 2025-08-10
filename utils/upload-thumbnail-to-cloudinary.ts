@@ -12,7 +12,7 @@ export const uploadThumbnail = (file: any): Promise<string | null> => {
     const stream = cloudinary.uploader.upload_stream(
       {
         resource_type: "image",
-        folder: "las_thumbnails", // optional: put in a folder
+        folder: "las_thumbnails",
       },
       (error, result) => {
         if (error || !result?.secure_url) {

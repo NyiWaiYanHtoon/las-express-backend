@@ -1,8 +1,8 @@
-import { PrismaClient, User } from '@prisma/client';
+import { PrismaClient, User, UserRole} from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function insertUser(email: string, role: 'user' | 'admin' = 'user'):  Promise< User | null >{
+export async function insertUser(email: string, role: UserRole = 'user'):  Promise< User | null >{
   try {
     
     // Check if the user already exists

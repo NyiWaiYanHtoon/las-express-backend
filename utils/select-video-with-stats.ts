@@ -25,18 +25,25 @@ type TVideosWithStats = {
 
 export const getVideoStatsFromDB = async (
   offset: number,
+  limit: number,
   timestamp: string
 ): Promise<TVideosWithStats | null> => {
   
   const filter = getTimestampFilter(timestamp);
-
+  console.log(offset, limit, timestamp, filter);
   const videoList = await prisma.video.findMany({
-    orderBy: { createdAt: "desc" },
+    orderBy: [
+      { createdAt: "desc" }, 
+      { id: "desc" }
+    ],
     skip: offset,
-    take: 5, //limit
+    take: limit,
   });
 
   const videoIds = videoList.map((v) => v.id);
+  const videoTitles = videoList.map((v) => v.title);
+
+  console.log("titles: ", videoTitles);
 
   const statsMap = new Map<
     string,
@@ -48,12 +55,14 @@ export const getVideoStatsFromDB = async (
     statsMap.set(id, { visit: 0, view: 0, complete: 0 });
   }
 
-  for (const action of await prisma.action.findMany({
+  const actions = await prisma.action.findMany({
     where: {
       videoId: { in: videoIds },
       ...(filter ? { createdAt: filter } : {}),
     },
-  })) {
+  })
+  
+  for (const action of actions ) {
     const stat = statsMap.get(action.videoId);
     if (!stat) continue;
     if (action.actionType === "visit") stat.visit++;

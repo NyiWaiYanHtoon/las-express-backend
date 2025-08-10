@@ -14,12 +14,20 @@ export const insertLike = async (videoId: string, userId: string): Promise< Like
           where: { videoId },
           data: {
             users: { push: userId },
-            count: { increment: 1 },
+            count: { set: existingLike.users.length+1 },
           },
         });
         return updatedLike;
       } else {
-        return existingLike;
+        const newlikeUsers= existingLike.users.filter(id => id !== userId);
+        const removedLike= await prisma.like.update({
+          where: { videoId },
+          data: {
+            users: { set: newlikeUsers },
+            count: { set: newlikeUsers.length },
+          }
+        })
+        return removedLike;
       }
     } else {
       const newLike = await prisma.like.create({

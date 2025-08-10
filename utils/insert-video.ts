@@ -8,18 +8,28 @@ export async function insertVideo(
   tags: string[],
   categoryId: string,
   thumbnailUrl: string,
-  duration: number
-): Promise< Video | null> {
+  duration: number,
+  createdBy: string,
+): Promise<Video | null> {
   try {
-    const newVideo: Video = await prisma.video.create({
+    const newVideo = await prisma.video.create({
       data: {
         title,
         description,
         tags,
         videoUrl,
         thumbnailUrl,
-        categoryId,
         duration,
+        category: {
+          connect: {
+            id: categoryId,
+          },
+        },
+        uploader: {
+          connect: {
+            id: createdBy,
+          },
+        },
         likes: {
           create: {
             users: [],
@@ -34,7 +44,8 @@ export async function insertVideo(
         },
       },
     });
-    
+
+
     return newVideo;
 
   } catch (error) {

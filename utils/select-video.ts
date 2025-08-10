@@ -20,6 +20,8 @@ export const selectVideoWithCount = async (
     likes: Like | null;
     dislikes: Dislike | null;
     views: number;
+    completes: number;
+    visits: number;
   }[];
   total: number;
 } | null> => {
@@ -51,16 +53,18 @@ export const selectVideoWithCount = async (
           category: { select: { name: true } },
           likes: { select: { id: true, count: true, users: true, videoId: true } },
           dislikes: { select: { id: true, count: true, users: true, videoId: true } },
-          actions: {
-            where: { actionType: "view" },
-            select: { id: true },
-          },
+          actions: true
         },
       }),
       prisma.video.count({ where: whereFilter }),
     ]);
+    let views=0; let visits= 0; let completes= 0;
+    videos.forEach(video => {
+      views = video.actions.filter(a => a.actionType === "view").length;
+      visits = video.actions.filter(a => a.actionType === "visit").length;
+      completes = video.actions.filter(a => a.actionType === "complete").length;
+    });
 
-    
     const formattedVideos = videos.map((v) => ({
       id: v.id,
       title: v.title,
@@ -73,7 +77,9 @@ export const selectVideoWithCount = async (
       category: { name: v.category.name },
       likes: v.likes ?? { count: 0, users: [], videoId: "", id: "" },
       dislikes: v.dislikes ?? { count: 0, users: [], videoId: "", id: ""  },
-      views: v.actions.length,
+      views,
+      visits,
+      completes 
     }));
 
     return { videos: formattedVideos, total };

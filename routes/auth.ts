@@ -2,7 +2,6 @@ import express, { Request, Response } from 'express';
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { insertUser } from '../utils/insert-user';
-import { User } from '@prisma/client';
 
 const router = express.Router();
 passport.serializeUser((user, done) => {
@@ -19,12 +18,13 @@ passport.use(new GoogleStrategy({
   callbackURL: `${process.env.EXPRESS_SERVER_URL}/api/auth/google/callback`,
 },
 async (accessToken, refreshToken, profile, done) => {
-  console.log("logging in");
+  console.log("logging in...");
   const email = profile.emails?.[0]?.value;
   const username = profile.displayName;
   const photoUrl = profile.photos?.[0]?.value;
   if(!email) return done(new Error('No email found in Google profile'));
   const dbUser= await insertUser(email);
+  console.log("dbUser: ", dbUser);
   if(!dbUser) return done(new Error('Error logging in'));
   const userstore= {
     dbUser,
@@ -44,10 +44,14 @@ router.get('/google/callback',
     
     const role = user?.dbUser?.role || 'user';
 
-    const redirectURL =
-      role === 'admin'
-        ? `${process.env.FRONTEND_URL}/admin/analytics`
-        : `${process.env.FRONTEND_URL}/home`;
+    // Comment for Demo
+    // const redirectURL =
+    //   role === 'admin'
+    //     ? `${process.env.FRONTEND_URL}/admin/analytics`
+    //     : `${process.env.FRONTEND_URL}/home`;
+
+    // only direct to home for demo
+    const redirectURL= `${process.env.FRONTEND_URL}/home`;
 
     res.redirect(redirectURL);
   }
