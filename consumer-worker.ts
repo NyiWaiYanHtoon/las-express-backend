@@ -28,7 +28,7 @@ async function runConsumer() {
         const actionType = TOPICS[topic];
 
         const action = await insertAction(actionType, videoId, userId)
-        if(!action) console.log("Error inserting action:");
+        if(!action)  return console.log("Error inserting action:");
         console.log(`Created action '${actionType}' for video ${videoId} by user ${userId}`);
       } catch (err) {
         console.log("Error processing message:", err);
