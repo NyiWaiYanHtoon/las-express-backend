@@ -1,10 +1,9 @@
-import { Action, ActionType, PrismaClient, User } from '@prisma/client';
+import { Action, ActionType, PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 export async function insertAction(actionType: ActionType, videoId: string, userId: string):  Promise< Action | null >{
   try {
-    // Insert the new user
     const newAction = await prisma.action.create({
       data: {
         actionType,
@@ -14,8 +13,13 @@ export async function insertAction(actionType: ActionType, videoId: string, user
     });
     return newAction;
     
-  } catch (error) {
-    console.log('Error inserting action:', error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error inserting action:', error.message);
+      console.error(error.stack);
+    } else {
+      console.error('Unknown error inserting action:', error);
+    }
     return null;
   }
 }
