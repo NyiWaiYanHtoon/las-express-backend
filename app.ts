@@ -61,7 +61,6 @@ app.use(express.json());
 app.use(passport.initialize());
 app.use(passport.session());
 
-
 app.get('/', (req: express.Request, res: express.Response) => {
   res.send('Learning Analytics System Backend is running! 🚀');
 });
