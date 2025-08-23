@@ -15,11 +15,12 @@ const upload = multer({ storage: multer.memoryStorage() });
 router.get('/', async (req, res) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
-    const pageSize = 12;
+    const pageSize = Number(req.query.pageSize) as number || 12;
     const search = req.query.search as string || "";
     const id = req.query.id as string || undefined;
+    const userId= req.query.userId as string || undefined;
 
-    const data = await selectVideoWithCount((page - 1) * pageSize, pageSize, search, id)
+    const data = await selectVideoWithCount((page - 1) * pageSize, pageSize, search, id, userId)
     if (!data) res.status(500).send("Something went wrong!");
     return res.json(data);
   } catch (err) {

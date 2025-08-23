@@ -48,28 +48,30 @@ export async function selectUserStats(offset: number, limit: number, search: str
           take: 1,
         });
 
-        const video = mostViewed[0]
+        const mostViewedVideo = mostViewed[0]
           ? await prisma.video.findUnique({ where: { id: mostViewed[0].videoId } })
           : null;
 
-        const visitedVideo = mostVisited[0]
+        const mostVisitedVideo = mostVisited[0]
           ? await prisma.video.findUnique({ where: { id: mostVisited[0].videoId } })
           : null;
 
-        const viewedCategory = video
-          ? await prisma.category.findUnique({ where: { id: video.categoryId } })
+        const viewedCategory = mostViewedVideo
+          ? await prisma.category.findUnique({ where: { id: mostViewedVideo.categoryId } })
           : null;
 
-        const visitedCategory = visitedVideo
-          ? await prisma.category.findUnique({ where: { id: visitedVideo.categoryId } })
+        const visitedCategory = mostVisitedVideo
+          ? await prisma.category.findUnique({ where: { id: mostVisitedVideo.categoryId } })
           : null;
 
         return {
+          id: user.id,
           email: user.email,
           joinedAt: user.joinedAt,
           mostViewedCategory: viewedCategory,
           mostVisitedCategory: visitedCategory,
-          mostViewedVideo: video,
+          mostViewedVideo,
+          mostVisitedVideo
         };
       })
     );

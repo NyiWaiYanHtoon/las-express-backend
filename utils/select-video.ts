@@ -1,11 +1,12 @@
-import { PrismaClient, Prisma, Like, Dislike } from "@prisma/client";
+import { PrismaClient, Prisma, Like, Dislike, ActionType } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export const selectVideoWithCount = async (
   offset: number,
   limit: number,
   search: string,
-  id?: string
+  id?: string,
+  userId?: string
 ): Promise<{
   videos: {
     id: string;
@@ -39,8 +40,19 @@ export const selectVideoWithCount = async (
 
     const idCondition = id ? { id } : {};
 
+    const userActionCondition = userId
+    ? {
+        actions: {
+          some: {
+            actionType: ActionType.complete,
+            userId: userId,
+          },
+        },
+      }
+    : {};
+
     const whereFilter: Prisma.VideoWhereInput = {
-      AND: [idCondition, searchConditions],
+      AND: [idCondition, searchConditions, userActionCondition],
     };
 
     const [videos, total] = await Promise.all([

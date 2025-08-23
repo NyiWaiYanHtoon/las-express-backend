@@ -11,6 +11,6 @@
     "forceConsistentCasingInFileNames": true,
     "types": ["node"],
   },
-  "include": ["app.ts", "consumer-worker.ts", "routes", "utils", "kafka", "prisma"],
+  "include": ["app.ts", "routes", "utils", "kafka", "prisma"],
   "exclude": ["node_modules"]
 }
